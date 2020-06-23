@@ -1,0 +1,101 @@
+http:
+  routers:
+  {{#each servers}}
+    local{{ this }}-ssl-h1:
+      entryPoints:
+        - websecure
+      tls: {}
+      rule: "HostRegexp(`eko{{ this }}-{sub:[hs]1}.eko.ninja`)"
+      service: local{{ this }}-h1
+
+    local{{ this }}-h1:
+      entryPoints:
+        - web
+      rule: "HostRegexp(`eko{{ this }}-{sub:[hs]1}.eko.ninja`)"
+      service: local{{ this }}-h1
+
+    local{{ this }}-ssl-admin:
+      entryPoints:
+        - websecure
+      tls: {}
+      rule: "Host(`eko{{ this }}-admin.eko.ninja`)"
+      service: local{{ this }}-admin
+
+    local{{ this }}-admin:
+      entryPoints:
+        - web
+      rule: "Host(`eko{{ this }}-admin.eko.ninja`)"
+      service: local{{ this }}-admin
+
+    local{{ this }}-ssl-web:
+      entryPoints:
+        - websecure
+      tls: {}
+      rule: "Host(`eko{{ this }}-wapp.eko.ninja`)"
+      service: local{{ this }}-web
+
+    local{{ this }}-web:
+      entryPoints:
+        - web
+      rule: "Host(`eko{{ this }}-wapp.eko.ninja`)"
+      service: local{{ this }}-web
+
+    local{{ this }}-ssl-wf:
+      entryPoints:
+        - websecure
+      tls: {}
+      rule: "Host(`eko{{ this }}-workflow.eko.ninja`)"
+      service: local{{ this }}-wf
+
+    local{{ this }}-wf:
+      entryPoints:
+        - web
+      rule: "Host(`eko{{ this }}-workflow.eko.ninja`)"
+      service: local{{ this }}-wf
+
+    local{{ this }}-ssl-api:
+      entryPoints:
+        - websecure
+      tls: {}
+      rule: "Host(`eko{{ this }}-api-server.eko.ninja`)"
+      service: local{{ this }}-api
+
+    local{{ this }}-api:
+      entryPoints:
+        - web
+      rule: "Host(`eko{{ this }}-api-server.eko.ninja`)"
+      service: local{{ this }}-api
+  {{/each}}
+
+  services:
+  {{#each servers}}
+    local{{ this }}-h1:
+      loadBalancer:
+        passHostHeader: false
+        servers:
+          - url: http://h1.eko{{ this }}.local
+
+    local{{ this }}-admin:
+      loadBalancer:
+        passHostHeader: false
+        servers:
+          - url: http://admin.eko{{ this }}.local
+
+    local{{ this }}-web:
+      loadBalancer:
+        passHostHeader: false
+        servers:
+          - url: http://web.eko{{ this }}.local
+
+    local{{ this }}-wf:
+      loadBalancer:
+        passHostHeader: false
+        servers:
+          - url: http://workflow.eko{{ this }}.local
+
+    local{{ this }}-api:
+      loadBalancer:
+        passHostHeader: false
+        servers:
+          - url: http://api-server.eko{{ this }}.local
+  {{/each}}
